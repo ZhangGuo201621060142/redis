@@ -2,6 +2,7 @@ package com.example.zg.redis;
 
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -26,94 +27,91 @@ import java.util.stream.Collectors;
 @Component
 public class StringRedisService<T> {
 
-
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
+
+
     //=============================common============================
 
-//    /**
-//     * 指定缓存失效时间
-//     *
-//     * @param key  键
-//     * @param time 时间(秒)
-//     * @return
-//     */
-//    public boolean expire(String key, long time) {
-//        try {
-//            if (time > 0) {
-//                stringRedisTemplate.expire(key, time, TimeUnit.SECONDS);
-//            }
-//            return true;
-//        } catch (Exception e) {
-//            log.error(e.getMessage());
-//            return false;
-//        }
-//    }
-//
-//    /**
-//     * 指定缓存失效时间
-//     *
-//     * @param key  键
-//     * @param time 时间(秒)
-//     * @param timeUnit 时间单位
-//     * @return
-//     */
-//    public boolean expire(String key, long time, TimeUnit timeUnit) {
-//        try {
-//            if (time > 0) {
-//                stringRedisTemplate.expire(key, time, timeUnit);
-//            }
-//            return true;
-//        } catch (Exception e) {
-//            log.error(e.getMessage());
-//            return false;
-//        }
-//    }
-//
-//    /**
-//     * 根据key 获取过期时间
-//     *
-//     * @param key 键 不能为null
-//     * @return 时间(秒) 返回0代表为永久有效
-//     */
-//    public Long getExpire(String key) {
-//        return stringRedisTemplate.getExpire(key, TimeUnit.SECONDS);
-//    }
-//
-//    /**
-//     * 判断key是否存在
-//     *
-//     * @param key 键
-//     * @return true 存在 false不存在
-//     */
-//    public Boolean hasKey(String key) {
-//        try {
-//            return stringRedisTemplate.hasKey(key);
-//        } catch (Exception e) {
-//            log.error(e.getMessage());
-//            return false;
-//        }
-//    }
-//
-//    /**
-//     * 删除缓存
-//     *
-//     * @param key 可以传一个值 或多个
-//     */
-//    @SuppressWarnings("unchecked")
-//    public void del(String... key) {
-//        if (key != null && key.length > 0) {
-//            if (key.length == 1) {
-//                stringRedisTemplate.delete(key[0]);
-//            } else {
-//                stringRedisTemplate.delete(CollectionUtils.arrayToList(key));
-//            }
-//        }
-//    }
+    /**
+     * 指定缓存失效时间
+     *
+     * @param key  键
+     * @param time 时间(秒)
+     * @return
+     */
+    public boolean expire(String key, long time) {
+        try {
+            if (time > 0) {
+                stringRedisTemplate.expire(key, time, TimeUnit.SECONDS);
+            }
+            return true;
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return false;
+        }
+    }
 
-    public Type getTType() {
-        return ((ParameterizedType) (this.getClass().getGenericSuperclass())).getActualTypeArguments()[0];
+    /**
+     * 指定缓存失效时间
+     *
+     * @param key  键
+     * @param time 时间(秒)
+     * @param timeUnit 时间单位
+     * @return
+     */
+    public boolean expire(String key, long time, TimeUnit timeUnit) {
+        try {
+            if (time > 0) {
+                stringRedisTemplate.expire(key, time, timeUnit);
+            }
+            return true;
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * 根据key 获取过期时间
+     *
+     * @param key 键 不能为null
+     * @return 时间(秒) 返回0代表为永久有效
+     */
+    public Long getExpire(String key) {
+        return stringRedisTemplate.getExpire(key, TimeUnit.SECONDS);
+    }
+
+    /**
+     * 判断key是否存在
+     *
+     * @param key 键
+     * @return true 存在 false不存在
+     */
+    public Boolean hasKey(String key) {
+        try {
+            return stringRedisTemplate.hasKey(key);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * 删除缓存
+     *
+     * @param key 可以传一个值 或多个
+     */
+    @SuppressWarnings("unchecked")
+    public void del(String... key) {
+        if (key != null && key.length > 0) {
+            if (key.length == 1) {
+                stringRedisTemplate.delete(key[0]);
+            } else {
+                stringRedisTemplate.delete(CollectionUtils.arrayToList(key));
+            }
+        }
     }
 
     //============================String=============================
@@ -132,23 +130,23 @@ public class StringRedisService<T> {
 //        return key == null ? null : JSON.parseObject(stringRedisTemplate.opsForValue().get(key), T.class);
 //    }
 //
-//    /**
-//     * 普通缓存放入
-//     *
-//     * @param key   键
-//     * @param value 值
-//     * @return true成功 false失败
-//     */
-//    public boolean set(String key, T value) {
-//        try {
-//            stringRedisTemplate.opsForValue().set(key, JSON.toJSONString(value));
-//            return true;
-//        } catch (Exception e) {
-//            log.error(e.getMessage());
-//            return false;
-//        }
-//
-//    }
+    /**
+     * 普通缓存放入
+     *
+     * @param key   键
+     * @param value 值
+     * @return true成功 false失败
+     */
+    public boolean set(String key, T value) {
+        try {
+            stringRedisTemplate.opsForValue().set(key, JSON.toJSONString(value));
+            return true;
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return false;
+        }
+
+    }
 //
 //    /**
 //     * 普通缓存放入并设置时间

@@ -22,9 +22,9 @@ public class RedisServiceTest {
 //    private RedisService<Person> redisService;
 //
 //
-//    public static final Person PERSON1 = new Person("zhangguo", 27);
-//    public static final Person PERSON2 = new Person("zhangfangfang", 25);
-//    public static final List<Person> PERSON_LIST = Arrays.asList(PERSON1, PERSON2, PERSON2, PERSON2);
+    public static final Person PERSON1 = new Person("zhangguo", 27);
+    public static final Person PERSON2 = new Person("zhangfangfang", 25);
+    public static final List<Person> PERSON_LIST = Arrays.asList(PERSON1, PERSON2, PERSON2, PERSON2);
 //
 //    @Test
 //    public void testCommon() {
@@ -94,8 +94,10 @@ public class RedisServiceTest {
     private StringRedisService<Person> stringRedisService;
 
     @Test
-    public void test() {
-        System.out.println(stringRedisService.getTType());
+    public void testStringRedis() {
+        stringRedisService.set("redisTestValue", PERSON2);
+        Person person = stringRedisService.get("redisTestValue", Person.class);
+        System.out.println(person);
     }
 
 //    @Test
@@ -107,13 +109,7 @@ public class RedisServiceTest {
 ////        System.out.println("redisTestHash-zhangguo：" + redisService.getExpire("redisTestHash-zhangguo"));
 //    }
 //
-//    @Test
-//    public void testStringRedis() {
-////        stringRedisService.expire("tttttttttttttt", 60);
-//        stringRedisService.set("redisTestValue", PERSON2);
-//        Person person = stringRedisService.get("redisTestValue", Person.class);
-//        System.out.println(person);
-//    }
+
 //
 //    @Test
 //    public void testStringReidsHash() {
