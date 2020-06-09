@@ -31,13 +31,14 @@ public class RedisService<T> {
      * 指定缓存失效时间
      *
      * @param key  键
-     * @param time 时间(秒)
+     * @param time 时间
+     * @param timeUnit 时间单位
      * @return
      */
-    public boolean expire(String key, long time) {
+    public boolean expire(String key, long time, TimeUnit timeUnit) {
         try {
             if (time > 0) {
-                redisTemplate.expire(key, time, TimeUnit.SECONDS);
+                redisTemplate.expire(key, time, timeUnit);
             }
             return true;
         } catch (Exception e) {
@@ -50,10 +51,21 @@ public class RedisService<T> {
      * 根据key 获取过期时间
      *
      * @param key 键 不能为null
-     * @return 时间(秒) 返回0代表为永久有效
+     * @return 时间(秒) 返回-1代表为永久有效
      */
     public Long getExpire(String key) {
         return redisTemplate.getExpire(key, TimeUnit.SECONDS);
+    }
+
+    /**
+     * 根据key 获取过期时间
+     *
+     * @param key 键 不能为null
+     * @param timeUnit 时间单位
+     * @return 时间(秒) 返回-1代表为永久有效
+     */
+    public Long getExpire(String key, TimeUnit timeUnit) {
+        return redisTemplate.getExpire(key, timeUnit);
     }
 
     /**
@@ -122,13 +134,14 @@ public class RedisService<T> {
      *
      * @param key   键
      * @param value 值
-     * @param time  时间(秒) time要大于0 如果time小于等于0 将设置无限期
+     * @param time  时间 time要大于0 如果time小于等于0 将设置无限期
+     * @param timeUnit  时间单位
      * @return true成功 false 失败
      */
-    public boolean set(String key, T value, long time) {
+    public boolean set(String key, T value, long time, TimeUnit timeUnit) {
         try {
             if (time > 0) {
-                redisTemplate.opsForValue().set(key, value, time, TimeUnit.SECONDS);
+                redisTemplate.opsForValue().set(key, value, time, timeUnit);
             } else {
                 set(key, value);
             }
@@ -139,7 +152,7 @@ public class RedisService<T> {
         }
     }
 
-    //================================Map=================================
+//    ================================Map=================================
 
     /**
      * HashGet
@@ -148,8 +161,9 @@ public class RedisService<T> {
      * @param item 项 不能为null
      * @return 值
      */
-    public Object hget(String key, String item) {
-        return redisTemplate.opsForHash().get(key, item);
+    @SuppressWarnings("unchecked")
+    public T hget(String key, String item) {
+        return (T) redisTemplate.opsForHash().get(key, item);
     }
 
     /**
@@ -158,6 +172,7 @@ public class RedisService<T> {
      * @param key 键
      * @return 对应的多个键值
      */
+    @SuppressWarnings("unchecked")
     public Map<String, T> hmget(String key) {
         Map<String, T> result = new HashMap<>();
         for (Map.Entry<Object, Object> entry : redisTemplate.opsForHash().entries(key).entrySet()) {
@@ -188,14 +203,15 @@ public class RedisService<T> {
      *
      * @param key  键
      * @param map  对应多个键值
-     * @param time 时间(秒)
+     * @param time 时间
+     * @param timeUnit 时间单位
      * @return true成功 false失败
      */
-    public boolean hmset(String key, Map<String, T> map, long time) {
+    public boolean hmset(String key, Map<String, T> map, long time, TimeUnit timeUnit) {
         try {
             redisTemplate.opsForHash().putAll(key, map);
             if (time > 0) {
-                expire(key, time);
+                expire(key, time, timeUnit);
             }
             return true;
         } catch (Exception e) {
@@ -228,14 +244,15 @@ public class RedisService<T> {
      * @param key   键
      * @param item  项
      * @param value 值
-     * @param time  时间(秒)  注意:如果已存在的hash表有时间,这里将会替换原有的时间
-     * @return true 成功 false失败
+     * @param time  时间  注意:如果已存在的hash表有时间,这里将会替换原有的时间
+     * @param timeUnit  时间单位
+     * @return true成功 false失败
      */
-    public boolean hset(String key, String item, T value, long time) {
+    public boolean hset(String key, String item, T value, long time, TimeUnit timeUnit) {
         try {
             redisTemplate.opsForHash().put(key, item, value);
             if (time > 0) {
-                expire(key, time);
+                expire(key, time, timeUnit);
             }
             return true;
         } catch (Exception e) {
@@ -318,14 +335,15 @@ public class RedisService<T> {
      * 将set数据放入缓存
      *
      * @param key    键
-     * @param time   时间(秒)
+     * @param time   时间
+     * @param timeUnit   时间单位
      * @param values 值 可以是多个
      * @return 成功个数
      */
-    public Long sSetAndTime(String key, long time, T... values) {
+    public Long sSetAndTime(String key, long time, TimeUnit timeUnit, T... values) {
         try {
             Long count = redisTemplate.opsForSet().add(key, values);
-            if (time > 0) expire(key, time);
+            if (time > 0) expire(key, time, timeUnit);
             return count;
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -435,13 +453,16 @@ public class RedisService<T> {
      *
      * @param key   键
      * @param value 值
-     * @param time  时间(秒)
+     * @param time  时间
+     * @param timeUnit  时间单位
      * @return
      */
-    public boolean lSet(String key, T value, long time) {
+    public boolean lSet(String key, T value, long time, TimeUnit timeUnit) {
         try {
             redisTemplate.opsForList().rightPush(key, value);
-            if (time > 0) expire(key, time);
+            if (time > 0) {
+                expire(key, time, timeUnit);
+            }
             return true;
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -471,13 +492,16 @@ public class RedisService<T> {
      *
      * @param key   键
      * @param value 值
-     * @param time  时间(秒)
+     * @param time  时间
+     * @param timeUnit  时间单位
      * @return
      */
-    public boolean lSet(String key, List<T> value, long time) {
+    public boolean lSet(String key, List<T> value, long time, TimeUnit timeUnit) {
         try {
             redisTemplate.opsForList().rightPushAll(key, value);
-            if (time > 0) expire(key, time);
+            if (time > 0) {
+                expire(key, time, timeUnit);
+            }
             return true;
         } catch (Exception e) {
             log.error(e.getMessage());
