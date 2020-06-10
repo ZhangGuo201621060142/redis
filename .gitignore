@@ -33,4 +33,4 @@ build/
 
 
 #
-.mvn/
+.mvn/wrapper
